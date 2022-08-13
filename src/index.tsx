@@ -6,7 +6,8 @@ import {
   UseMutateAsyncFunction,
   QueryObserverResult,
   RefetchOptions,
-} from 'react-query';
+	QueryKey,
+} from '@tanstack/react-query';
 
 export interface AuthProviderConfig<User = unknown, Error = unknown> {
   key?: string;
@@ -77,16 +78,16 @@ export function initReactQueryAuth<
       error,
       status,
       isLoading,
-      isIdle,
+			fetchStatus,
       isSuccess,
       refetch,
-    } = useQuery<User, Error>({
-      queryKey: key,
-      queryFn: loadUser,
-    });
+    } = useQuery<User, Error>(
+      key as unknown as QueryKey,
+      loadUser
+  );
 
     const setUser = React.useCallback(
-      (data: User) => queryClient.setQueryData(key, data),
+      (data: User) => queryClient.setQueryData(key as unknown as QueryKey, data),
       [queryClient]
     );
 
@@ -142,7 +143,7 @@ export function initReactQueryAuth<
       );
     }
 
-    if (isLoading || isIdle) {
+    if (isLoading || fetchStatus === 'idle') {
       return <LoaderComponent />;
     }
 
